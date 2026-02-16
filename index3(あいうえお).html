@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>あいうえおさがし</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #fdf6e3;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+#level-select {
+  margin-bottom: 20px;
+}
+
+select {
+  font-size: 18px;
+  padding: 5px 10px;
+}
+
+#question {
+  font-size: 80px;
+  margin: 20px 0;
+}
+
+.choice-btn {
+  font-size: 40px;
+  margin: 10px;
+  padding: 15px 25px;
+  cursor: pointer;
+  border-radius: 10px;
+  border: none;
+  background: #fff;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.choice-btn:hover {
+  background: #ffe082;
+}
+
+.correct {
+  background: #b9f6ca !important;
+}
+
+.wrong {
+  background: #ff8a80 !important;
+}
+
+#result {
+  font-size: 28px;
+  margin-top: 20px;
+  height: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>あいうえお さがし</h1>
+
+<div id="level-select">
+  レベル：
+  <select id="level">
+    <option value="3">かんたん（3たく）</option>
+    <option value="4">ふつう（4たく）</option>
+    <option value="5" selected>むずかしい（5たく）</option>
+  </select>
+</div>
+
+<div id="question">？</div>
+
+<div id="choices"></div>
+
+<div id="result"></div>
+
+<script>
+
+const hiragana = [
+"あ","い","う","え","お",
+"か","き","く","け","こ",
+"さ","し","す","せ","そ",
+"た","ち","つ","て","と",
+"な","に","ぬ","ね","の",
+"は","ひ","ふ","へ","ほ",
+"ま","み","む","め","も",
+"や","ゆ","よ",
+"ら","り","る","れ","ろ",
+"わ","を","ん"
+];
+
+let correctAnswer = "";
+let locked = false;
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function generateQuestion() {
+
+  locked = false;
+  document.getElementById("result").textContent = "";
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+
+  const level = Number(document.getElementById("level").value);
+
+  // 正解をランダムに選ぶ
+  correctAnswer = hiragana[Math.floor(Math.random() * hiragana.length)];
+
+  document.getElementById("question").textContent = correctAnswer;
+
+  // ダミー選択肢作成
+  const choices = [correctAnswer];
+
+  while (choices.length < level) {
+    const randomChar = hiragana[Math.floor(Math.random() * hiragana.length)];
+    if (!choices.includes(randomChar)) {
+      choices.push(randomChar);
+    }
+  }
+
+  shuffle(choices);
+
+  choices.forEach(char => {
+    const btn = document.createElement("button");
+    btn.textContent = char;
+    btn.className = "choice-btn";
+
+    btn.addEventListener("click", () => {
+      if (locked) return;
+      locked = true;
+
+      if (char === correctAnswer) {
+        btn.classList.add("correct");
+        document.getElementById("result").textContent = "せいかい！";
+        
+        setTimeout(() => {
+          generateQuestion();
+        }, 2000);
+
+      } else {
+        btn.classList.add("wrong");
+        document.getElementById("result").textContent = "ちがうよ もういちど　えらんでね";
+        locked = false;
+      }
+    });
+
+    choicesDiv.appendChild(btn);
+  });
+}
+
+document.getElementById("level").addEventListener("change", generateQuestion);
+
+generateQuestion();
+
+</script>
+
+</body>
+</html>
